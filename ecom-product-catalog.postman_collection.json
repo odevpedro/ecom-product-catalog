@@ -1,0 +1,111 @@
+{
+  "info": {
+    "name": "ecom-product-catalog",
+    "description": "API de catalogo de produtos\n\nBase URL: {{base_url}}",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "ecom-product-catalog"
+  },
+  "item": [
+    {
+      "name": "Criar produto",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "    var json = pm.response.json();",
+              "    pm.collectionVariables.set('product_id', json.id);",
+              "    pm.collectionVariables.set('product_sku', json.sku);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Notebook Dell Inspiron\",\n  \"description\": \"Notebook 16\\\" 16GB RAM 512GB SSD\",\n  \"priceCents\": 450000,\n  \"sku\": \"NOTE-DELL-001\",\n  \"category\": \"Eletronicos\",\n  \"stockQuantity\": 10\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/products",
+          "host": ["{{base_url}}"],
+          "path": ["api", "products"]
+        }
+      }
+    },
+    {
+      "name": "Listar produtos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/products",
+          "host": ["{{base_url}}"],
+          "path": ["api", "products"]
+        }
+      }
+    },
+    {
+      "name": "Listar por categoria",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/products?category=Eletronicos",
+          "host": ["{{base_url}}"],
+          "path": ["api", "products"],
+          "query": [{ "key": "category", "value": "Eletronicos" }]
+        }
+      }
+    },
+    {
+      "name": "Buscar produto por ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/products/{{product_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "products", "{{product_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Atualizar produto",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Notebook Dell Inspiron 16\",\n  \"priceCents\": 420000,\n  \"stockQuantity\": 15\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/products/{{product_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "products", "{{product_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Deletar produto",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/products/{{product_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "products", "{{product_id}}"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3001", "type": "string" },
+    { "key": "product_id", "value": "", "type": "string" },
+    { "key": "product_sku", "value": "", "type": "string" }
+  ]
+}
