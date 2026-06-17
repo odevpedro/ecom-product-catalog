@@ -1,9 +1,11 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
+import { DataSource } from 'typeorm';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const logger = new Logger('Bootstrap');
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -13,8 +15,11 @@ async function bootstrap() {
     }),
   );
 
+  const dataSource = app.get(DataSource);
+  await dataSource.runMigrations();
+
   const port = process.env.PORT || 3001;
   await app.listen(port);
-  console.log(`Product Catalog running on port ${port}`);
+  logger.log(`Product Catalog running on port ${port}`);
 }
 bootstrap();
