@@ -15,6 +15,7 @@ import {
 } from '@nestjs/common';
 import { CreateProductUseCase } from '../../application/use-cases/create-product.usecase';
 import { ListProductsUseCase } from '../../application/use-cases/list-products.usecase';
+import { GetProductUseCase } from '../../application/use-cases/get-product.usecase';
 import { UpdateProductUseCase } from '../../application/use-cases/update-product.usecase';
 import { DeleteProductUseCase } from '../../application/use-cases/delete-product.usecase';
 import { CreateProductDto } from '../dtos/create-product.dto';
@@ -25,6 +26,7 @@ export class ProductController {
   constructor(
     private readonly createProductUseCase: CreateProductUseCase,
     private readonly listProductsUseCase: ListProductsUseCase,
+    private readonly getProductUseCase: GetProductUseCase,
     private readonly updateProductUseCase: UpdateProductUseCase,
     private readonly deleteProductUseCase: DeleteProductUseCase,
   ) {}
@@ -59,9 +61,7 @@ export class ProductController {
 
   @Get(':id')
   async getById(@Param('id', ParseUUIDPipe) id: string) {
-    const result = await this.listProductsUseCase.execute({ page: 1, limit: 1 });
-    const product = result.data.find((p) => p.id === id);
-    if (!product) return { message: 'Product not found' };
+    const product = await this.getProductUseCase.execute(id);
     return this.toResponse(product);
   }
 

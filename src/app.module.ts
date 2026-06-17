@@ -7,6 +7,7 @@ import { ProductModel } from './infrastructure/persistence/models/product.model'
 import { ProductRepositoryImpl } from './infrastructure/persistence/repositories/product.repository';
 import { CreateProductUseCase } from './application/use-cases/create-product.usecase';
 import { ListProductsUseCase } from './application/use-cases/list-products.usecase';
+import { GetProductUseCase } from './application/use-cases/get-product.usecase';
 import { UpdateProductUseCase } from './application/use-cases/update-product.usecase';
 import { DeleteProductUseCase } from './application/use-cases/delete-product.usecase';
 import { InMemoryCache } from './infrastructure/cache/in-memory-cache';
@@ -19,6 +20,8 @@ import { AllExceptionsFilter } from './filters/http-exception.filter';
       type: 'postgres',
       url: process.env.DATABASE_URL,
       entities: [ProductModel],
+      migrations: ['dist/infrastructure/persistence/migrations/*.js'],
+      migrationsRun: true,
       synchronize: false,
     }),
     TypeOrmModule.forFeature([ProductModel]),
@@ -38,6 +41,11 @@ import { AllExceptionsFilter } from './filters/http-exception.filter';
       provide: ListProductsUseCase,
       useFactory: (repo: ProductRepositoryImpl, cache: InMemoryCache) => new ListProductsUseCase(repo, cache),
       inject: [ProductRepositoryImpl, InMemoryCache],
+    },
+    {
+      provide: GetProductUseCase,
+      useFactory: (repo: ProductRepositoryImpl) => new GetProductUseCase(repo),
+      inject: [ProductRepositoryImpl],
     },
     {
       provide: UpdateProductUseCase,
