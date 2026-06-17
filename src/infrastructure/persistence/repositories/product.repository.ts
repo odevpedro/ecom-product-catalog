@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { Product } from '../../../core/entities/product.entity';
 import { Money } from '../../../core/value-objects/money.vo';
-import { ProductRepository } from '../../../application/ports/product-repository.port';
+import {
+  ProductRepository,
+  ListProductsFilters,
+  PaginatedResult,
+} from '../../../application/ports/product-repository.port';
 import { ProductModel } from '../models/product.model';
 
 @Injectable()
@@ -29,10 +33,27 @@ export class ProductRepositoryImpl implements ProductRepository {
     return model ? this.toDomain(model) : null;
   }
 
-  async findAll(filters?: { category?: string }): Promise<Product[]> {
-    const where = filters?.category ? { category: filters.category } : {};
-    const models = await this.repo.find({ where });
-    return models.map((m) => this.toDomain(m));
+  async findAll(filters?: ListProductsFilters): Promise<PaginatedResult<Product>> {
+    const { category, q, page, limit } = filters ?? { page: 1, limit: 10 };
+
+    const where: Record<string, any> = {};
+    if (category) where.category = category;
+
+    const findOptions: any = {
+      skip: (page - 1) * limit,
+      take: limit,
+    };
+
+    if (q) {
+      const searchClause = { ...where, name: ILike(`%${q}%`) };
+      const searchClause2 = { ...where, description: ILike(`%${q}%`) };
+      findOptions.where = [searchClause, searchClause2];
+    } else {
+      findOptions.where = Object.keys(where).length > 0 ? where : {};
+    }
+
+    const [models, total] = await this.repo.findAndCount(findOptions);
+    return { items: models.map((m) => this.toDomain(m)), total };
   }
 
   async delete(id: string): Promise<void> {

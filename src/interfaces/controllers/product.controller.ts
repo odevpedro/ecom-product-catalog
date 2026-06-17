@@ -10,6 +10,8 @@ import {
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { CreateProductUseCase } from '../../application/use-cases/create-product.usecase';
 import { ListProductsUseCase } from '../../application/use-cases/list-products.usecase';
@@ -42,15 +44,23 @@ export class ProductController {
   }
 
   @Get()
-  async list(@Query('category') category?: string) {
-    const products = await this.listProductsUseCase.execute({ category });
-    return products.map((p) => this.toResponse(p));
+  async list(
+    @Query('category') category?: string,
+    @Query('q') q?: string,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit?: number,
+  ) {
+    const result = await this.listProductsUseCase.execute({ category, q, page, limit });
+    return {
+      data: result.data.map((p) => this.toResponse(p)),
+      meta: result.meta,
+    };
   }
 
   @Get(':id')
   async getById(@Param('id', ParseUUIDPipe) id: string) {
-    const products = await this.listProductsUseCase.execute();
-    const product = products.find((p) => p.id === id);
+    const result = await this.listProductsUseCase.execute({ page: 1, limit: 1 });
+    const product = result.data.find((p) => p.id === id);
     if (!product) return { message: 'Product not found' };
     return this.toResponse(product);
   }

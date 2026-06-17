@@ -9,6 +9,7 @@ import { CreateProductUseCase } from './application/use-cases/create-product.use
 import { ListProductsUseCase } from './application/use-cases/list-products.usecase';
 import { UpdateProductUseCase } from './application/use-cases/update-product.usecase';
 import { DeleteProductUseCase } from './application/use-cases/delete-product.usecase';
+import { InMemoryCache } from './infrastructure/cache/in-memory-cache';
 import { RequestIdInterceptor } from './interceptors/request-id.interceptor';
 import { AllExceptionsFilter } from './filters/http-exception.filter';
 
@@ -27,25 +28,26 @@ import { AllExceptionsFilter } from './filters/http-exception.filter';
     { provide: APP_INTERCEPTOR, useClass: RequestIdInterceptor },
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
     ProductRepositoryImpl,
+    InMemoryCache,
     {
       provide: CreateProductUseCase,
-      useFactory: (repo: ProductRepositoryImpl) => new CreateProductUseCase(repo),
-      inject: [ProductRepositoryImpl],
+      useFactory: (repo: ProductRepositoryImpl, cache: InMemoryCache) => new CreateProductUseCase(repo, cache),
+      inject: [ProductRepositoryImpl, InMemoryCache],
     },
     {
       provide: ListProductsUseCase,
-      useFactory: (repo: ProductRepositoryImpl) => new ListProductsUseCase(repo),
-      inject: [ProductRepositoryImpl],
+      useFactory: (repo: ProductRepositoryImpl, cache: InMemoryCache) => new ListProductsUseCase(repo, cache),
+      inject: [ProductRepositoryImpl, InMemoryCache],
     },
     {
       provide: UpdateProductUseCase,
-      useFactory: (repo: ProductRepositoryImpl) => new UpdateProductUseCase(repo),
-      inject: [ProductRepositoryImpl],
+      useFactory: (repo: ProductRepositoryImpl, cache: InMemoryCache) => new UpdateProductUseCase(repo, cache),
+      inject: [ProductRepositoryImpl, InMemoryCache],
     },
     {
       provide: DeleteProductUseCase,
-      useFactory: (repo: ProductRepositoryImpl) => new DeleteProductUseCase(repo),
-      inject: [ProductRepositoryImpl],
+      useFactory: (repo: ProductRepositoryImpl, cache: InMemoryCache) => new DeleteProductUseCase(repo, cache),
+      inject: [ProductRepositoryImpl, InMemoryCache],
     },
   ],
 })

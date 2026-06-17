@@ -2,6 +2,7 @@ import { Product } from '../../core/entities/product.entity';
 import { Money } from '../../core/value-objects/money.vo';
 import { ProductAlreadyExistsException } from '../../core/exceptions/domain.exception';
 import { ProductRepository } from '../ports/product-repository.port';
+import { InMemoryCache } from '../../infrastructure/cache/in-memory-cache';
 
 export interface CreateProductInput {
   name: string;
@@ -14,7 +15,10 @@ export interface CreateProductInput {
 }
 
 export class CreateProductUseCase {
-  constructor(private readonly repository: ProductRepository) {}
+  constructor(
+    private readonly repository: ProductRepository,
+    private readonly cache: InMemoryCache,
+  ) {}
 
   async execute(input: CreateProductInput): Promise<Product> {
     const existing = await this.repository.findBySku(input.sku);
@@ -31,6 +35,8 @@ export class CreateProductUseCase {
       stockQuantity: input.stockQuantity,
     });
 
-    return this.repository.save(product);
+    const saved = await this.repository.save(product);
+    this.cache.invalidateAll();
+    return saved;
   }
 }

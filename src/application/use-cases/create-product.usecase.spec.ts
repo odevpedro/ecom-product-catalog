@@ -2,9 +2,11 @@ import { CreateProductUseCase } from './create-product.usecase';
 import { ProductRepository } from '../ports/product-repository.port';
 import { Product } from '../../core/entities/product.entity';
 import { ProductAlreadyExistsException } from '../../core/exceptions/domain.exception';
+import { InMemoryCache } from '../../infrastructure/cache/in-memory-cache';
 
 describe('CreateProductUseCase', () => {
   let repo: jest.Mocked<ProductRepository>;
+  let cache: InMemoryCache;
   let useCase: CreateProductUseCase;
 
   beforeEach(() => {
@@ -15,7 +17,8 @@ describe('CreateProductUseCase', () => {
       findAll: jest.fn(),
       delete: jest.fn(),
     };
-    useCase = new CreateProductUseCase(repo);
+    cache = new InMemoryCache();
+    useCase = new CreateProductUseCase(repo, cache);
   });
 
   it('creates a product when sku is unique', async () => {
